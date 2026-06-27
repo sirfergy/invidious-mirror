@@ -13,8 +13,20 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     env:
-      SRC: quay.io/invidious/invidious
-      DST: docker.io/sirfergy/invidious
+      SRC_NS: quay.io/invidious
+      DST_NS: docker.io/sirfergy
+      # One Quay repo per line; each repo's :latest tag is mirrored (all architectures).
+      REPOS: |
+        invidious
+        invidious-companion
+        invidious-redirect
+        inv-sig-helper
+        youtube-trusted-session-generator
+        smart-ipv6-rotator
+        lsquic-compiled
+        instances
+        invidious.io
+        docs.invidious.io
     steps:
       - name: Install skopeo
         run: |
@@ -26,18 +38,27 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: echo "$DOCKERHUB_TOKEN" | skopeo login docker.io -u sirfergy --password-stdin
 
-      - name: Mirror tags (all architectures)
+      - name: Mirror all images (latest, all architectures)
         run: |
-          set -euo pipefail
-          for tag in latest; do
-            echo "::group::mirror :$tag"
-            skopeo copy --all --retry-times 3 \
-              "docker://$SRC:$tag" "docker://$DST:$tag"
+          set -uo pipefail
+          failed=""
+          while read -r repo; do
+            [ -z "$repo" ] && continue
+            echo "::group::mirror $repo:latest"
+            if skopeo copy --all --retry-times 3 \
+                "docker://$SRC_NS/$repo:latest" "docker://$DST_NS/$repo:latest"; then
+              echo "ok: $repo"
+            else
+              echo "::error::failed to mirror $repo"
+              failed="$failed $repo"
+            fi
             echo "::endgroup::"
-          done
-
-      - name: Verify mirror
-        run: skopeo inspect --raw "docker://$DST:latest" | head -c 2000; echo
+          done <<< "$REPOS"
+          if [ -n "$failed" ]; then
+            echo "Mirrored with failures:$failed"
+            exit 1
+          fi
+          echo "All images mirrored successfully."
 
       - name: Log out
         if: always()

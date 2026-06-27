@@ -15,18 +15,19 @@ jobs:
     env:
       SRC_NS: quay.io/invidious
       DST_NS: docker.io/sirfergy
-      # One Quay repo per line; each repo's :latest tag is mirrored (all architectures).
-      REPOS: |
-        invidious
-        invidious-companion
-        invidious-redirect
-        inv-sig-helper
-        youtube-trusted-session-generator
-        smart-ipv6-rotator
-        lsquic-compiled
-        instances
-        invidious.io
-        docs.invidious.io
+      # One Quay image per line; every tag is mirrored with all architectures.
+      IMAGES: |
+        invidious:latest
+        invidious:master
+        invidious-companion:latest
+        invidious-redirect:latest
+        inv-sig-helper:latest
+        youtube-trusted-session-generator:latest
+        smart-ipv6-rotator:latest
+        lsquic-compiled:latest
+        instances:latest
+        invidious.io:latest
+        docs.invidious.io:latest
     steps:
       - name: Install skopeo
         run: |
@@ -42,18 +43,18 @@ jobs:
         run: |
           set -uo pipefail
           failed=""
-          while read -r repo; do
-            [ -z "$repo" ] && continue
-            echo "::group::mirror $repo:latest"
+          while read -r image; do
+            [ -z "$image" ] && continue
+            echo "::group::mirror $image"
             if skopeo copy --all --retry-times 3 \
-                "docker://$SRC_NS/$repo:latest" "docker://$DST_NS/$repo:latest"; then
-              echo "ok: $repo"
+                "docker://$SRC_NS/$image" "docker://$DST_NS/$image"; then
+              echo "ok: $image"
             else
-              echo "::error::failed to mirror $repo"
-              failed="$failed $repo"
+              echo "::error::failed to mirror $image"
+              failed="$failed $image"
             fi
             echo "::endgroup::"
-          done <<< "$REPOS"
+          done <<< "$IMAGES"
           if [ -n "$failed" ]; then
             echo "Mirrored with failures:$failed"
             exit 1

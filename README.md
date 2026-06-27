@@ -6,6 +6,7 @@ pulled alongside everything else on Docker Hub.
 
 A scheduled [GitHub Action](.github/workflows/mirror.yml) runs `skopeo copy --all` daily (06:00 UTC),
 mirroring each image's `:latest` tag and preserving every architecture in the upstream manifest.
+The Invidious `:master` tag is also mirrored for deployments that track upstream development builds.
 
 - **Upstream project & source:** https://github.com/iv-org/invidious
 
@@ -28,9 +29,10 @@ Each is a drop-in replacement for its `quay.io/invidious/<name>` counterpart:
 
 ```
 docker pull sirfergy/invidious:latest
+docker pull sirfergy/invidious:master
 ```
 
-To add or remove images, edit the `REPOS` list in [.github/workflows/mirror.yml](.github/workflows/mirror.yml).
+To add or remove images, edit the `IMAGES` list in [.github/workflows/mirror.yml](.github/workflows/mirror.yml).
 
 ## Manual run
 

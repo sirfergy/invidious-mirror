@@ -1,0 +1,44 @@
+name: Mirror Invidious to Docker Hub
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    env:
+      SRC: quay.io/invidious/invidious
+      DST: docker.io/sirfergy/invidious
+    steps:
+      - name: Install skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Log in to Docker Hub
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "$DOCKERHUB_TOKEN" | skopeo login docker.io -u sirfergy --password-stdin
+
+      - name: Mirror tags (all architectures)
+        run: |
+          set -euo pipefail
+          for tag in latest; do
+            echo "::group::mirror :$tag"
+            skopeo copy --all --retry-times 3 \
+              "docker://$SRC:$tag" "docker://$DST:$tag"
+            echo "::endgroup::"
+          done
+
+      - name: Verify mirror
+        run: skopeo inspect --raw "docker://$DST:latest" | head -c 2000; echo
+
+      - name: Log out
+        if: always()
+        run: skopeo logout docker.io || true

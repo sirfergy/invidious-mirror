@@ -23,9 +23,6 @@ Each is a drop-in replacement for its `quay.io/invidious/<name>` counterpart:
 | [`sirfergy/youtube-trusted-session-generator`](https://hub.docker.com/r/sirfergy/youtube-trusted-session-generator) | `quay.io/invidious/youtube-trusted-session-generator` |
 | [`sirfergy/smart-ipv6-rotator`](https://hub.docker.com/r/sirfergy/smart-ipv6-rotator) | `quay.io/invidious/smart-ipv6-rotator` |
 | [`sirfergy/lsquic-compiled`](https://hub.docker.com/r/sirfergy/lsquic-compiled) | `quay.io/invidious/lsquic-compiled` |
-| [`sirfergy/instances`](https://hub.docker.com/r/sirfergy/instances) | `quay.io/invidious/instances` |
-| [`sirfergy/invidious.io`](https://hub.docker.com/r/sirfergy/invidious.io) | `quay.io/invidious/invidious.io` |
-| [`sirfergy/docs.invidious.io`](https://hub.docker.com/r/sirfergy/docs.invidious.io) | `quay.io/invidious/docs.invidious.io` |
 
 ```
 docker pull sirfergy/invidious:latest

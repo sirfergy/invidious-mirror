@@ -25,9 +25,6 @@ jobs:
         youtube-trusted-session-generator:latest
         smart-ipv6-rotator:latest
         lsquic-compiled:latest
-        instances:latest
-        invidious.io:latest
-        docs.invidious.io:latest
     steps:
       - name: Install skopeo
         run: |
